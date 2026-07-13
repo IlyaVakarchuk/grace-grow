@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: grace-postgres
+    environment:
+      POSTGRES_USER: grace
+      POSTGRES_PASSWORD: grace
+      POSTGRES_DB: grace
+    ports:
+      - "5434:5432"
+    volumes:
+      - grace_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grace -d grace"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  grace_pg_data:

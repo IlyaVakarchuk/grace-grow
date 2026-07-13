@@ -68,6 +68,7 @@ func main() {
 	}))
 
 	r.Get("/health", h.Health)
+	r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Post("/auth/register", h.Register)
@@ -77,6 +78,10 @@ func main() {
 			r.Use(middleware.Auth(cfg.JWTSecret))
 
 			r.Get("/me", h.Me)
+			r.Get("/library", h.ListLibrary)
+			r.Get("/library/{id}", h.GetLibraryItem)
+			r.Get("/calendar", h.Calendar)
+			r.Post("/calendar/{id}/complete", h.CompleteTask)
 			r.Get("/reminders/upcoming", h.UpcomingReminders)
 
 			r.Route("/plants", func(r chi.Router) {
@@ -91,6 +96,9 @@ func main() {
 
 				r.Get("/{id}/reminders", h.ListReminders)
 				r.Post("/{id}/reminders", h.CreateReminder)
+
+				r.Get("/{id}/observations", h.ListObservations)
+				r.Post("/{id}/observations", h.CreateObservation)
 			})
 		})
 	})

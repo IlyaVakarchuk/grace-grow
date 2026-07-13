@@ -136,6 +136,7 @@ func (h *Handler) ListPlants(w http.ResponseWriter, r *http.Request) {
 type plantRequest struct {
 	Name      string  `json:"name"`
 	Species   string  `json:"species"`
+	SpeciesID *string `json:"species_id"`
 	Location  *string `json:"location"`
 	Notes     *string `json:"notes"`
 	PlantedAt *string `json:"planted_at"`
@@ -151,15 +152,13 @@ func (h *Handler) CreatePlant(w http.ResponseWriter, r *http.Request) {
 	if req.Species == "" {
 		req.Species = "other"
 	}
-	plantedAt := time.Now()
-	if req.PlantedAt != nil {
-		if t, err := time.Parse("2006-01-02", *req.PlantedAt); err == nil {
-			plantedAt = t
-		}
-	}
 
-	plant, err := h.repo.CreatePlant(r.Context(), userID, req.Name, req.Species, req.Location, req.Notes, plantedAt)
+	plant, err := h.createPlantWithReminders(r.Context(), userID, req)
 	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			writeError(w, http.StatusBadRequest, "species not found")
+			return
+		}
 		writeError(w, http.StatusInternalServerError, "create failed")
 		return
 	}

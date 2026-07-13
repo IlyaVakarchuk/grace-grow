@@ -9,7 +9,8 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)/login" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="plant/[id]" options={{ headerShown: true, title: "Растение" }} />
+        <Stack.Screen name="library/[id]" options={{ headerShown: true, title: "Растение" }} />
+        <Stack.Screen name="plant/[id]" options={{ headerShown: true, title: "Мой сад" }} />
       </Stack>
     </>
   );

@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
 
 	"github.com/vakarchukiv/grace/api/internal/config"
 	"github.com/vakarchukiv/grace/api/internal/db"
@@ -22,6 +23,7 @@ import (
 )
 
 func main() {
+	loadEnv()
 	cfg := config.Load()
 	ctx := context.Background()
 
@@ -115,5 +117,19 @@ func main() {
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Fatalf("shutdown: %v", err)
+	}
+}
+
+func loadEnv() {
+	candidates := []string{
+		".env",
+		"../.env",
+		"../../.env",
+	}
+	for _, path := range candidates {
+		if err := godotenv.Load(path); err == nil {
+			log.Printf("loaded env from %s", path)
+			return
+		}
 	}
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/vakarchukiv/grace/api/internal/middleware"
@@ -55,7 +56,8 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.repo.CreateUser(r.Context(), req.Email, string(hash), req.Name)
 	if err != nil {
-		if strings.Contains(err.Error(), "duplicate") {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			writeError(w, http.StatusConflict, "email already exists")
 			return
 		}

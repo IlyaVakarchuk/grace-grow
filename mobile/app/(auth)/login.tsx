@@ -5,7 +5,6 @@ import {
   TextInput,
   Pressable,
   StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -18,8 +17,10 @@ export default function LoginScreen() {
   const [name, setName] = useState("");
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit() {
+    setError("");
     setLoading(true);
     try {
       if (isRegister) {
@@ -29,7 +30,7 @@ export default function LoginScreen() {
       }
       router.replace("/(tabs)");
     } catch (e: any) {
-      Alert.alert("Ошибка", e.message);
+      setError(e.message ?? "Ошибка");
     } finally {
       setLoading(false);
     }
@@ -42,6 +43,8 @@ export default function LoginScreen() {
     >
       <Text style={styles.logo}>🌱 Grace</Text>
       <Text style={styles.subtitle}>Мониторинг домашних растений</Text>
+
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
       {isRegister && (
         <TextInput
@@ -86,6 +89,14 @@ const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", padding: 24, backgroundColor: "#F8FFF8" },
   logo: { fontSize: 48, textAlign: "center", marginBottom: 8 },
   subtitle: { fontSize: 16, textAlign: "center", color: "#555", marginBottom: 32 },
+  error: {
+    backgroundColor: "#FEE2E2",
+    color: "#B91C1C",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    textAlign: "center",
+  },
   input: {
     backgroundColor: "#fff",
     borderWidth: 1,

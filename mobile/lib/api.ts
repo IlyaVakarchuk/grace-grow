@@ -20,6 +20,21 @@ export type PlantSpecies = {
   fertilize_days: number | null;
   repot_days: number | null;
   description: string | null;
+  trefle_id?: number | null;
+  image_url?: string | null;
+  scientific_name?: string | null;
+  source?: string;
+};
+
+export type TrefleSearchHit = {
+  trefle_id: number;
+  slug: string;
+  name: string;
+  scientific_name: string;
+  family: string;
+  image_url?: string | null;
+  imported: boolean;
+  species_id?: string | null;
 };
 
 export type Plant = {
@@ -127,6 +142,19 @@ export async function getLibrary(type?: string) {
 
 export async function getLibraryItem(id: string) {
   return request<PlantSpecies>(`/api/v1/library/${id}`);
+}
+
+export async function searchTrefle(query: string, page = 1) {
+  return request<{ data: TrefleSearchHit[]; total: number }>(
+    `/api/v1/library/search?q=${encodeURIComponent(query)}&page=${page}`
+  );
+}
+
+export async function importFromTrefle(slug: string) {
+  return request<PlantSpecies>("/api/v1/library/import", {
+    method: "POST",
+    body: JSON.stringify({ slug }),
+  });
 }
 
 export async function getPlants() {

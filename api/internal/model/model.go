@@ -14,16 +14,31 @@ type User struct {
 }
 
 type PlantSpecies struct {
-	ID            uuid.UUID `json:"id"`
-	Slug          string    `json:"slug"`
-	Name          string    `json:"name"`
-	Type          string    `json:"type"`
-	Light         string    `json:"light"`
-	Humidity      string    `json:"humidity"`
-	WaterDays     int       `json:"water_days"`
-	FertilizeDays *int      `json:"fertilize_days"`
-	RepotDays     *int      `json:"repot_days"`
-	Description   *string   `json:"description"`
+	ID             uuid.UUID `json:"id"`
+	Slug           string    `json:"slug"`
+	Name           string    `json:"name"`
+	Type           string    `json:"type"`
+	Light          string    `json:"light"`
+	Humidity       string    `json:"humidity"`
+	WaterDays      int       `json:"water_days"`
+	FertilizeDays  *int      `json:"fertilize_days"`
+	RepotDays      *int      `json:"repot_days"`
+	Description    *string   `json:"description"`
+	TrefleID       *int      `json:"trefle_id,omitempty"`
+	ImageURL       *string   `json:"image_url,omitempty"`
+	ScientificName *string   `json:"scientific_name,omitempty"`
+	Source         string    `json:"source"`
+}
+
+type TrefleSearchHit struct {
+	TrefleID       int     `json:"trefle_id"`
+	Slug           string  `json:"slug"`
+	Name           string  `json:"name"`
+	ScientificName string  `json:"scientific_name"`
+	Family         string  `json:"family"`
+	ImageURL       *string `json:"image_url,omitempty"`
+	Imported       bool    `json:"imported"`
+	SpeciesID      *string `json:"species_id,omitempty"`
 }
 
 type Plant struct {

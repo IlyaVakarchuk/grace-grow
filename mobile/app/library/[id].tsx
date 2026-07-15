@@ -65,7 +65,13 @@ export default function LibraryDetailScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>{item.name}</Text>
-      <Text style={styles.badge}>{TYPE_LABELS[item.type]}</Text>
+      <Text style={styles.badge}>
+        {TYPE_LABELS[item.type]}
+        {item.source === "trefle" ? " · Trefle" : ""}
+      </Text>
+      {item.scientific_name ? (
+        <Text style={styles.scientific}>{item.scientific_name}</Text>
+      ) : null}
 
       <View style={styles.info}>
         <Text style={styles.label}>☀️ Свет</Text>
@@ -122,7 +128,8 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg },
   center: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg },
   title: { fontSize: 26, fontWeight: "700", color: colors.text },
-  badge: { color: colors.accent, marginTop: 4, marginBottom: spacing.lg },
+  badge: { color: colors.accent, marginTop: 4, marginBottom: spacing.sm },
+  scientific: { color: colors.textSecondary, marginBottom: spacing.lg },
   info: { backgroundColor: colors.card, borderRadius: radii.lg, padding: spacing.lg, gap: 4 },
   label: { fontWeight: "600", marginTop: spacing.sm, color: colors.text },
   value: { color: colors.textSecondary },

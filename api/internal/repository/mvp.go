@@ -11,7 +11,8 @@ import (
 
 func (r *Repository) ListSpecies(ctx context.Context, typeFilter string) ([]model.PlantSpecies, error) {
 	query := `
-		SELECT id, slug, name, type, light, humidity, water_days, fertilize_days, repot_days, description
+		SELECT id, slug, name, type, light, humidity, water_days, fertilize_days, repot_days, description,
+		       trefle_id, image_url, scientific_name, source
 		FROM plant_species
 	`
 	args := []any{}
@@ -30,7 +31,11 @@ func (r *Repository) ListSpecies(ctx context.Context, typeFilter string) ([]mode
 	var list []model.PlantSpecies
 	for rows.Next() {
 		var s model.PlantSpecies
-		if err := rows.Scan(&s.ID, &s.Slug, &s.Name, &s.Type, &s.Light, &s.Humidity, &s.WaterDays, &s.FertilizeDays, &s.RepotDays, &s.Description); err != nil {
+		if err := rows.Scan(
+			&s.ID, &s.Slug, &s.Name, &s.Type, &s.Light, &s.Humidity, &s.WaterDays,
+			&s.FertilizeDays, &s.RepotDays, &s.Description, &s.TrefleID, &s.ImageURL,
+			&s.ScientificName, &s.Source,
+		); err != nil {
 			return nil, err
 		}
 		list = append(list, s)
@@ -41,9 +46,14 @@ func (r *Repository) ListSpecies(ctx context.Context, typeFilter string) ([]mode
 func (r *Repository) GetSpecies(ctx context.Context, id uuid.UUID) (model.PlantSpecies, error) {
 	var s model.PlantSpecies
 	err := r.pool.QueryRow(ctx, `
-		SELECT id, slug, name, type, light, humidity, water_days, fertilize_days, repot_days, description
+		SELECT id, slug, name, type, light, humidity, water_days, fertilize_days, repot_days, description,
+		       trefle_id, image_url, scientific_name, source
 		FROM plant_species WHERE id = $1
-	`, id).Scan(&s.ID, &s.Slug, &s.Name, &s.Type, &s.Light, &s.Humidity, &s.WaterDays, &s.FertilizeDays, &s.RepotDays, &s.Description)
+	`, id).Scan(
+		&s.ID, &s.Slug, &s.Name, &s.Type, &s.Light, &s.Humidity, &s.WaterDays,
+		&s.FertilizeDays, &s.RepotDays, &s.Description, &s.TrefleID, &s.ImageURL,
+		&s.ScientificName, &s.Source,
+	)
 	if err == pgx.ErrNoRows {
 		return s, ErrNotFound
 	}
@@ -53,12 +63,66 @@ func (r *Repository) GetSpecies(ctx context.Context, id uuid.UUID) (model.PlantS
 func (r *Repository) GetSpeciesBySlug(ctx context.Context, slug string) (model.PlantSpecies, error) {
 	var s model.PlantSpecies
 	err := r.pool.QueryRow(ctx, `
-		SELECT id, slug, name, type, light, humidity, water_days, fertilize_days, repot_days, description
+		SELECT id, slug, name, type, light, humidity, water_days, fertilize_days, repot_days, description,
+		       trefle_id, image_url, scientific_name, source
 		FROM plant_species WHERE slug = $1
-	`, slug).Scan(&s.ID, &s.Slug, &s.Name, &s.Type, &s.Light, &s.Humidity, &s.WaterDays, &s.FertilizeDays, &s.RepotDays, &s.Description)
+	`, slug).Scan(
+		&s.ID, &s.Slug, &s.Name, &s.Type, &s.Light, &s.Humidity, &s.WaterDays,
+		&s.FertilizeDays, &s.RepotDays, &s.Description, &s.TrefleID, &s.ImageURL,
+		&s.ScientificName, &s.Source,
+	)
 	if err == pgx.ErrNoRows {
 		return s, ErrNotFound
 	}
+	return s, err
+}
+
+func (r *Repository) GetSpeciesByTrefleID(ctx context.Context, trefleID int) (model.PlantSpecies, error) {
+	var s model.PlantSpecies
+	err := r.pool.QueryRow(ctx, `
+		SELECT id, slug, name, type, light, humidity, water_days, fertilize_days, repot_days, description,
+		       trefle_id, image_url, scientific_name, source
+		FROM plant_species WHERE trefle_id = $1
+	`, trefleID).Scan(
+		&s.ID, &s.Slug, &s.Name, &s.Type, &s.Light, &s.Humidity, &s.WaterDays,
+		&s.FertilizeDays, &s.RepotDays, &s.Description, &s.TrefleID, &s.ImageURL,
+		&s.ScientificName, &s.Source,
+	)
+	if err == pgx.ErrNoRows {
+		return s, ErrNotFound
+	}
+	return s, err
+}
+
+func (r *Repository) UpsertSpecies(ctx context.Context, s model.PlantSpecies) (model.PlantSpecies, error) {
+	err := r.pool.QueryRow(ctx, `
+		INSERT INTO plant_species (
+			slug, name, type, light, humidity, water_days, fertilize_days, repot_days,
+			description, trefle_id, image_url, scientific_name, source
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+		ON CONFLICT (slug) DO UPDATE SET
+			name = EXCLUDED.name,
+			type = EXCLUDED.type,
+			light = EXCLUDED.light,
+			humidity = EXCLUDED.humidity,
+			water_days = EXCLUDED.water_days,
+			fertilize_days = EXCLUDED.fertilize_days,
+			repot_days = EXCLUDED.repot_days,
+			description = EXCLUDED.description,
+			trefle_id = EXCLUDED.trefle_id,
+			image_url = EXCLUDED.image_url,
+			scientific_name = EXCLUDED.scientific_name,
+			source = EXCLUDED.source
+		RETURNING id, slug, name, type, light, humidity, water_days, fertilize_days, repot_days, description,
+		          trefle_id, image_url, scientific_name, source
+	`,
+		s.Slug, s.Name, s.Type, s.Light, s.Humidity, s.WaterDays, s.FertilizeDays, s.RepotDays,
+		s.Description, s.TrefleID, s.ImageURL, s.ScientificName, s.Source,
+	).Scan(
+		&s.ID, &s.Slug, &s.Name, &s.Type, &s.Light, &s.Humidity, &s.WaterDays,
+		&s.FertilizeDays, &s.RepotDays, &s.Description, &s.TrefleID, &s.ImageURL,
+		&s.ScientificName, &s.Source,
+	)
 	return s, err
 }
 

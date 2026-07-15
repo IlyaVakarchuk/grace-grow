@@ -8,6 +8,7 @@ type Config struct {
 	Port        string
 	DatabaseURL string
 	JWTSecret   string
+	TrefleToken string
 }
 
 func Load() Config {
@@ -15,6 +16,7 @@ func Load() Config {
 		Port:        getEnv("PORT", "8080"),
 		DatabaseURL: getEnv("DATABASE_URL", "postgres://grace:grace@localhost:5434/grace?sslmode=disable"),
 		JWTSecret:   getEnv("JWT_SECRET", "change-me-in-production"),
+		TrefleToken: getEnv("TREFLE_TOKEN", ""),
 	}
 }
 

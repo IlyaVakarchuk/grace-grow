@@ -20,6 +20,7 @@ import (
 	"github.com/vakarchukiv/grace/api/internal/handler"
 	"github.com/vakarchukiv/grace/api/internal/middleware"
 	"github.com/vakarchukiv/grace/api/internal/repository"
+	"github.com/vakarchukiv/grace/api/internal/trefle"
 )
 
 func main() {
@@ -53,7 +54,8 @@ func main() {
 	}
 
 	repo := repository.New(pool)
-	h := handler.New(repo, cfg.JWTSecret)
+	trefleClient := trefle.New(cfg.TrefleToken)
+	h := handler.New(repo, cfg.JWTSecret, trefleClient)
 
 	r := chi.NewRouter()
 	r.Use(chimw.Logger)
@@ -79,6 +81,8 @@ func main() {
 
 			r.Get("/me", h.Me)
 			r.Get("/library", h.ListLibrary)
+			r.Get("/library/search", h.SearchTrefle)
+			r.Post("/library/import", h.ImportFromTrefle)
 			r.Get("/library/{id}", h.GetLibraryItem)
 			r.Get("/calendar", h.Calendar)
 			r.Post("/calendar/{id}/complete", h.CompleteTask)

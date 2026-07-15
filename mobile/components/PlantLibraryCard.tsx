@@ -1,5 +1,6 @@
 import { Pressable, Text, View, StyleSheet } from "react-native";
-import { colors, radii, spacing } from "@/lib/theme";
+import { useThemedStyles } from "@/lib/ThemeContext";
+import { radii, spacing, type ThemeColors } from "@/lib/theme";
 import { PlantCardData } from "@/lib/plantDisplay";
 import { SafePlantImage } from "@/components/SafePlantImage";
 
@@ -9,7 +10,67 @@ type Props = {
   selected?: boolean;
 };
 
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: radii.lg,
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: spacing.md,
+    },
+    cardSelected: { borderColor: colors.borderActive },
+    imageWrap: {
+      height: 160,
+      backgroundColor: colors.cardHover,
+      position: "relative",
+    },
+    imageFill: { width: "100%", height: "100%" },
+    badge: {
+      position: "absolute",
+      top: spacing.sm,
+      right: spacing.sm,
+      backgroundColor: colors.badgeOverlay,
+      borderRadius: radii.pill,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+    },
+    badgeText: { color: colors.onAccent, fontSize: 11, fontWeight: "600" },
+    body: { padding: spacing.lg, gap: spacing.sm },
+    title: { fontSize: 20, fontWeight: "700", color: colors.text },
+    scientific: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      fontStyle: "italic",
+    },
+    tags: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+    tag: {
+      backgroundColor: colors.chip,
+      borderRadius: radii.pill,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+    },
+    tagText: { color: colors.text, fontSize: 12 },
+    facts: { gap: 6, marginTop: spacing.xs },
+    factRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+    },
+    factIcon: { width: 18, fontSize: 13 },
+    factLabel: { width: 88, fontSize: 12, color: colors.textSecondary },
+    factValue: {
+      flex: 1,
+      fontSize: 12,
+      color: colors.text,
+      fontWeight: "500",
+    },
+  });
+
 export function PlantLibraryCard({ data, onPress, selected }: Props) {
+  const styles = useThemedStyles(makeStyles);
+
   return (
     <Pressable
       style={[styles.card, selected && styles.cardSelected]}
@@ -64,60 +125,3 @@ export function PlantLibraryCard({ data, onPress, selected }: Props) {
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radii.lg,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: spacing.md,
-  },
-  cardSelected: { borderColor: colors.borderActive },
-  imageWrap: {
-    height: 160,
-    backgroundColor: colors.cardHover,
-    position: "relative",
-  },
-  imageFill: { width: "100%", height: "100%" },
-  badge: {
-    position: "absolute",
-    top: spacing.sm,
-    right: spacing.sm,
-    backgroundColor: "rgba(0,0,0,0.65)",
-    borderRadius: radii.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  badgeText: { color: colors.text, fontSize: 11, fontWeight: "600" },
-  body: { padding: spacing.lg, gap: spacing.sm },
-  title: { fontSize: 20, fontWeight: "700", color: colors.text },
-  scientific: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    fontStyle: "italic",
-  },
-  tags: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  tag: {
-    backgroundColor: colors.chip,
-    borderRadius: radii.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  tagText: { color: colors.text, fontSize: 12 },
-  facts: { gap: 6, marginTop: spacing.xs },
-  factRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  factIcon: { width: 18, fontSize: 13 },
-  factLabel: { width: 88, fontSize: 12, color: colors.textSecondary },
-  factValue: {
-    flex: 1,
-    fontSize: 12,
-    color: colors.text,
-    fontWeight: "500",
-  },
-});

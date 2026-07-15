@@ -1,6 +1,7 @@
 import { View, Pressable, StyleSheet, Platform, useWindowDimensions, Image, Text } from "react-native";
 import { router, usePathname } from "expo-router";
-import { colors } from "@/lib/theme";
+import { useThemedStyles } from "@/lib/ThemeContext";
+import { type ThemeColors } from "@/lib/theme";
 
 const NAV = [
   { href: "/(tabs)", icon: "🏠", match: "/index" },
@@ -14,8 +15,33 @@ export function useShowSidebar() {
   return Platform.OS === "web" && width >= 768;
 }
 
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    sidebar: {
+      width: 64,
+      backgroundColor: colors.sidebar,
+      alignItems: "center",
+      paddingTop: 16,
+      borderRightWidth: 1,
+      borderRightColor: colors.border,
+    },
+    logo: { width: 36, height: 36, marginBottom: 24 },
+    nav: { gap: 8 },
+    navItem: {
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    navItemActive: { backgroundColor: colors.card },
+    icon: { fontSize: 20 },
+    iconInactive: { opacity: 0.55 },
+  });
+
 export function Sidebar() {
   const pathname = usePathname();
+  const styles = useThemedStyles(makeStyles);
 
   function isActive(match: string) {
     if (match === "/index") {
@@ -51,26 +77,3 @@ export function Sidebar() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  sidebar: {
-    width: 64,
-    backgroundColor: colors.sidebar,
-    alignItems: "center",
-    paddingTop: 16,
-    borderRightWidth: 1,
-    borderRightColor: colors.border,
-  },
-  logo: { width: 36, height: 36, marginBottom: 24 },
-  nav: { gap: 8 },
-  navItem: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  navItemActive: { backgroundColor: colors.card },
-  icon: { fontSize: 20 },
-  iconInactive: { opacity: 0.55 },
-});

@@ -8,7 +8,8 @@ import {
   ViewStyle,
   ImageStyle,
 } from "react-native";
-import { colors } from "@/lib/theme";
+import { useThemedStyles } from "@/lib/ThemeContext";
+import { type ThemeColors } from "@/lib/theme";
 import { TYPE_EMOJI } from "@/lib/labels";
 import { plantImageUrl } from "@/lib/api";
 
@@ -21,6 +22,21 @@ type Props = {
   alt?: string;
 };
 
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    wrap: {
+      overflow: "hidden",
+      backgroundColor: colors.cardHover,
+      position: "relative",
+    },
+    image: { width: "100%", height: "100%" },
+    placeholder: {
+      backgroundColor: colors.cardHover,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+  });
+
 export function SafePlantImage({
   uri,
   typeKey = "other",
@@ -29,6 +45,7 @@ export function SafePlantImage({
   emojiSize = 48,
   alt = "Plant photo",
 }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const src = useMemo(() => plantImageUrl(uri), [uri]);
   const [failed, setFailed] = useState(!src);
 
@@ -81,17 +98,3 @@ export function SafePlantImage({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    overflow: "hidden",
-    backgroundColor: colors.cardHover,
-    position: "relative",
-  },
-  image: { width: "100%", height: "100%" },
-  placeholder: {
-    backgroundColor: colors.cardHover,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

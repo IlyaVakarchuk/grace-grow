@@ -11,9 +11,49 @@ import { router, useFocusEffect } from "expo-router";
 import { getPlants, Plant } from "@/lib/api";
 import { TYPE_LABELS, TYPE_EMOJI } from "@/lib/labels";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { colors, radii, spacing } from "@/lib/theme";
+import { useTheme, useThemedStyles } from "@/lib/ThemeContext";
+import { radii, spacing, type ThemeColors } from "@/lib/theme";
+
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
+    error: { color: colors.error, padding: spacing.md, textAlign: "center" },
+    emptyBox: { marginTop: 80, alignItems: "center", paddingHorizontal: 24 },
+    empty: { fontSize: 18, color: colors.text, fontWeight: "600" },
+    emptyHint: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginTop: 8,
+      textAlign: "center",
+    },
+    card: {
+      flexDirection: "row",
+      backgroundColor: colors.card,
+      marginBottom: spacing.md,
+      padding: spacing.lg,
+      borderRadius: radii.lg,
+      gap: spacing.md,
+      alignItems: "center",
+    },
+    icon: {
+      width: 48,
+      height: 48,
+      borderRadius: radii.md,
+      backgroundColor: colors.cardHover,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    emoji: { fontSize: 24 },
+    body: { flex: 1 },
+    cardTitle: { fontSize: 17, fontWeight: "600", color: colors.text },
+    cardSub: { fontSize: 13, color: colors.textSecondary, marginTop: 4 },
+    location: { fontSize: 13, color: colors.accent, marginTop: 4 },
+  });
 
 export default function GardenScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [plants, setPlants] = useState<Plant[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -86,34 +126,3 @@ export default function GardenScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
-  error: { color: colors.error, padding: spacing.md, textAlign: "center" },
-  emptyBox: { marginTop: 80, alignItems: "center", paddingHorizontal: 24 },
-  empty: { fontSize: 18, color: colors.text, fontWeight: "600" },
-  emptyHint: { fontSize: 14, color: colors.textSecondary, marginTop: 8, textAlign: "center" },
-  card: {
-    flexDirection: "row",
-    backgroundColor: colors.card,
-    marginBottom: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radii.lg,
-    gap: spacing.md,
-    alignItems: "center",
-  },
-  icon: {
-    width: 48,
-    height: 48,
-    borderRadius: radii.md,
-    backgroundColor: colors.cardHover,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  emoji: { fontSize: 24 },
-  body: { flex: 1 },
-  cardTitle: { fontSize: 17, fontWeight: "600", color: colors.text },
-  cardSub: { fontSize: 13, color: colors.textSecondary, marginTop: 4 },
-  location: { fontSize: 13, color: colors.accent, marginTop: 4 },
-});

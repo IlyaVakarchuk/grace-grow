@@ -21,9 +21,46 @@ import { FilterChips } from "@/components/FilterChips";
 import { PlantLibraryCard } from "@/components/PlantLibraryCard";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { speciesToCard, trefleHitToCard } from "@/lib/plantDisplay";
-import { colors, radii, spacing } from "@/lib/theme";
+import { useTheme, useThemedStyles } from "@/lib/ThemeContext";
+import { radii, spacing, type ThemeColors } from "@/lib/theme";
+
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    searchWrap: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.md,
+    },
+    search: {
+      flex: 1,
+      backgroundColor: colors.input,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radii.pill,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      color: colors.text,
+      fontSize: 15,
+    },
+    error: {
+      color: colors.error,
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.sm,
+    },
+    empty: {
+      textAlign: "center",
+      color: colors.textSecondary,
+      marginTop: 40,
+    },
+    list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
+  });
 
 export default function LibraryScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [items, setItems] = useState<PlantSpecies[]>([]);
   const [filter, setFilter] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -154,36 +191,3 @@ export default function LibraryScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  searchWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-  },
-  search: {
-    flex: 1,
-    backgroundColor: colors.input,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.pill,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    color: colors.text,
-    fontSize: 15,
-  },
-  error: {
-    color: colors.error,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-  empty: {
-    textAlign: "center",
-    color: colors.textSecondary,
-    marginTop: 40,
-  },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
-});

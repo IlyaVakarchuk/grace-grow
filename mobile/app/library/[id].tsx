@@ -14,9 +14,105 @@ import { TYPE_LABELS } from "@/lib/labels";
 import { speciesToDetailSections } from "@/lib/plantDisplay";
 import { PlantInfoSections } from "@/components/PlantInfoSections";
 import { SafePlantImage } from "@/components/SafePlantImage";
-import { colors, radii, spacing } from "@/lib/theme";
+import { useTheme, useThemedStyles } from "@/lib/ThemeContext";
+import { radii, spacing, type ThemeColors } from "@/lib/theme";
+
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    content: { paddingBottom: spacing.xl },
+    center: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: colors.bg,
+    },
+    hero: {
+      height: 220,
+      backgroundColor: colors.card,
+      marginBottom: spacing.lg,
+    },
+    heroFill: { width: "100%", height: "100%" },
+    title: {
+      fontSize: 28,
+      fontWeight: "700",
+      color: colors.text,
+      paddingHorizontal: spacing.lg,
+    },
+    scientific: {
+      color: colors.textSecondary,
+      fontStyle: "italic",
+      paddingHorizontal: spacing.lg,
+      marginTop: 4,
+    },
+    badges: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      marginTop: spacing.md,
+      marginBottom: spacing.lg,
+    },
+    badge: {
+      backgroundColor: colors.chip,
+      borderRadius: radii.pill,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+    },
+    badgeText: { color: colors.text, fontSize: 12, fontWeight: "600" },
+    descBox: {
+      marginHorizontal: spacing.lg,
+      marginTop: spacing.md,
+      backgroundColor: colors.card,
+      borderRadius: radii.lg,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    descTitle: {
+      fontSize: 16,
+      fontWeight: "700",
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    desc: { color: colors.textSecondary, lineHeight: 22 },
+    section: {
+      fontSize: 18,
+      fontWeight: "600",
+      marginTop: spacing.xl,
+      marginBottom: spacing.md,
+      color: colors.text,
+      paddingHorizontal: spacing.lg,
+    },
+    error: {
+      color: colors.error,
+      marginBottom: spacing.sm,
+      paddingHorizontal: spacing.lg,
+    },
+    input: {
+      backgroundColor: colors.input,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radii.md,
+      padding: 14,
+      marginBottom: 10,
+      marginHorizontal: spacing.lg,
+      color: colors.text,
+    },
+    btn: {
+      backgroundColor: colors.accentDark,
+      borderRadius: radii.md,
+      padding: 16,
+      alignItems: "center",
+      marginTop: spacing.sm,
+      marginHorizontal: spacing.lg,
+    },
+    btnText: { color: colors.onAccent, fontWeight: "600" },
+  });
 
 export default function LibraryDetailScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { id } = useLocalSearchParams<{ id: string }>();
   const [item, setItem] = useState<PlantSpecies | null>(null);
   const [name, setName] = useState("");
@@ -140,95 +236,3 @@ export default function LibraryDetailScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  content: { paddingBottom: spacing.xl },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.bg,
-  },
-  hero: {
-    height: 220,
-    backgroundColor: colors.card,
-    marginBottom: spacing.lg,
-  },
-  heroFill: { width: "100%", height: "100%" },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: colors.text,
-    paddingHorizontal: spacing.lg,
-  },
-  scientific: {
-    color: colors.textSecondary,
-    fontStyle: "italic",
-    paddingHorizontal: spacing.lg,
-    marginTop: 4,
-  },
-  badges: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  badge: {
-    backgroundColor: colors.chip,
-    borderRadius: radii.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  badgeText: { color: colors.text, fontSize: 12, fontWeight: "600" },
-  descBox: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
-    backgroundColor: colors.card,
-    borderRadius: radii.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  descTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  desc: { color: colors.textSecondary, lineHeight: 22 },
-  section: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: spacing.xl,
-    marginBottom: spacing.md,
-    color: colors.text,
-    paddingHorizontal: spacing.lg,
-  },
-  error: {
-    color: colors.error,
-    marginBottom: spacing.sm,
-    paddingHorizontal: spacing.lg,
-  },
-  input: {
-    backgroundColor: colors.input,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    padding: 14,
-    marginBottom: 10,
-    marginHorizontal: spacing.lg,
-    color: colors.text,
-  },
-  btn: {
-    backgroundColor: colors.accentDark,
-    borderRadius: radii.md,
-    padding: 16,
-    alignItems: "center",
-    marginTop: spacing.sm,
-    marginHorizontal: spacing.lg,
-  },
-  btnText: { color: colors.text, fontWeight: "600" },
-});

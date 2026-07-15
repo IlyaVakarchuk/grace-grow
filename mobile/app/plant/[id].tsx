@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  FlatList,
   TextInput,
   Image,
   ActivityIndicator,
@@ -25,11 +24,99 @@ import {
   photoUrl,
 } from "@/lib/api";
 import { TASK_LABELS } from "@/lib/labels";
-import { colors, radii, spacing } from "@/lib/theme";
+import { useTheme, useThemedStyles } from "@/lib/ThemeContext";
+import { radii, spacing, type ThemeColors } from "@/lib/theme";
 
 const ACTIONS = ["water", "fertilize", "repot", "harvest", "prune"];
 
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    center: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: colors.bg,
+    },
+    name: { fontSize: 24, fontWeight: "700", color: colors.text },
+    meta: { color: colors.textSecondary, marginBottom: spacing.md },
+    error: { color: colors.error, marginBottom: spacing.sm },
+    section: {
+      fontSize: 16,
+      fontWeight: "600",
+      marginTop: spacing.lg,
+      marginBottom: spacing.sm,
+      color: colors.text,
+    },
+    actions: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+    actionBtn: {
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radii.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    actionText: { color: colors.text },
+    input: {
+      backgroundColor: colors.input,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radii.sm,
+      padding: spacing.md,
+      minHeight: 60,
+      marginBottom: spacing.sm,
+      color: colors.text,
+    },
+    row: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
+    btn: {
+      flex: 1,
+      backgroundColor: colors.accentDark,
+      borderRadius: radii.sm,
+      padding: spacing.md,
+      alignItems: "center",
+    },
+    btnText: { color: colors.onAccent, fontWeight: "600" },
+    photoBtn: {
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radii.sm,
+      padding: spacing.md,
+      justifyContent: "center",
+    },
+    obsCard: {
+      backgroundColor: colors.card,
+      borderRadius: radii.sm,
+      padding: spacing.md,
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    photo: {
+      width: "100%",
+      height: 180,
+      borderRadius: radii.sm,
+      marginBottom: spacing.sm,
+    },
+    obsNote: { fontSize: 15, color: colors.text },
+    obsDate: { fontSize: 12, color: colors.textSecondary, marginTop: 4 },
+    empty: { color: colors.textSecondary },
+    log: {
+      backgroundColor: colors.card,
+      padding: spacing.md,
+      borderRadius: radii.sm,
+      marginBottom: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    logType: { fontWeight: "600", color: colors.text },
+    logDate: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+  });
+
 export default function PlantDetailScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { id } = useLocalSearchParams<{ id: string }>();
   const [plant, setPlant] = useState<Plant | null>(null);
   const [logs, setLogs] = useState<CareLog[]>([]);
@@ -187,71 +274,3 @@ export default function PlantDetailScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  center: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg },
-  name: { fontSize: 24, fontWeight: "700", color: colors.text },
-  meta: { color: colors.textSecondary, marginBottom: spacing.md },
-  error: { color: colors.error, marginBottom: spacing.sm },
-  section: { fontSize: 16, fontWeight: "600", marginTop: spacing.lg, marginBottom: spacing.sm, color: colors.text },
-  actions: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  actionBtn: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  actionText: { color: colors.text },
-  input: {
-    backgroundColor: colors.input,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.sm,
-    padding: spacing.md,
-    minHeight: 60,
-    marginBottom: spacing.sm,
-    color: colors.text,
-  },
-  row: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
-  btn: {
-    flex: 1,
-    backgroundColor: colors.accentDark,
-    borderRadius: radii.sm,
-    padding: spacing.md,
-    alignItems: "center",
-  },
-  btnText: { color: colors.text, fontWeight: "600" },
-  photoBtn: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.sm,
-    padding: spacing.md,
-    justifyContent: "center",
-  },
-  obsCard: {
-    backgroundColor: colors.card,
-    borderRadius: radii.sm,
-    padding: spacing.md,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  photo: { width: "100%", height: 180, borderRadius: radii.sm, marginBottom: spacing.sm },
-  obsNote: { fontSize: 15, color: colors.text },
-  obsDate: { fontSize: 12, color: colors.textSecondary, marginTop: 4 },
-  empty: { color: colors.textSecondary },
-  log: {
-    backgroundColor: colors.card,
-    padding: spacing.md,
-    borderRadius: radii.sm,
-    marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  logType: { fontWeight: "600", color: colors.text },
-  logDate: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
-});

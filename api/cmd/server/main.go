@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
 
 	"github.com/vakarchukiv/grace/api/internal/config"
 	"github.com/vakarchukiv/grace/api/internal/db"
@@ -22,6 +23,7 @@ import (
 )
 
 func main() {
+	loadEnv()
 	cfg := config.Load()
 	ctx := context.Background()
 
@@ -66,6 +68,7 @@ func main() {
 	}))
 
 	r.Get("/health", h.Health)
+	r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Post("/auth/register", h.Register)
@@ -75,6 +78,10 @@ func main() {
 			r.Use(middleware.Auth(cfg.JWTSecret))
 
 			r.Get("/me", h.Me)
+			r.Get("/library", h.ListLibrary)
+			r.Get("/library/{id}", h.GetLibraryItem)
+			r.Get("/calendar", h.Calendar)
+			r.Post("/calendar/{id}/complete", h.CompleteTask)
 			r.Get("/reminders/upcoming", h.UpcomingReminders)
 
 			r.Route("/plants", func(r chi.Router) {
@@ -89,6 +96,9 @@ func main() {
 
 				r.Get("/{id}/reminders", h.ListReminders)
 				r.Post("/{id}/reminders", h.CreateReminder)
+
+				r.Get("/{id}/observations", h.ListObservations)
+				r.Post("/{id}/observations", h.CreateObservation)
 			})
 		})
 	})
@@ -115,5 +125,19 @@ func main() {
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Fatalf("shutdown: %v", err)
+	}
+}
+
+func loadEnv() {
+	candidates := []string{
+		".env",
+		"../.env",
+		"../../.env",
+	}
+	for _, path := range candidates {
+		if err := godotenv.Load(path); err == nil {
+			log.Printf("loaded env from %s", path)
+			return
+		}
 	}
 }

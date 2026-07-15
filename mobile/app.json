@@ -1,23 +1,31 @@
 {
   "expo": {
-    "name": "Grace",
+    "name": "GraceGrow",
     "slug": "grace",
     "version": "1.0.0",
     "scheme": "grace",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F8FFF8"
+    },
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#2D6A4F"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#F8FFF8"
       }
     },
-    "plugins": ["expo-router"],
+    "plugins": ["expo-router", ["expo-image-picker", { "photosPermission": "Разрешите доступ к фото для лога наблюдений" }]],
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
     },
     "experiments": {
       "typedRoutes": true

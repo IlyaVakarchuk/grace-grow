@@ -4,6 +4,7 @@
 *.so
 *.dylib
 api/tmp/
+api/uploads/
 mobile/node_modules/
 mobile/.expo/
 mobile/dist/

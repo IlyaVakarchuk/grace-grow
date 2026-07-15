@@ -9,8 +9,22 @@ export type User = {
   name: string;
 };
 
+export type PlantSpecies = {
+  id: string;
+  slug: string;
+  name: string;
+  type: string;
+  light: string;
+  humidity: string;
+  water_days: number;
+  fertilize_days: number | null;
+  repot_days: number | null;
+  description: string | null;
+};
+
 export type Plant = {
   id: string;
+  species_id: string | null;
   name: string;
   species: string;
   location: string | null;
@@ -25,6 +39,30 @@ export type CareLog = {
   notes: string | null;
   created_at: string;
 };
+
+export type CalendarTask = {
+  id: string;
+  plant_id: string;
+  plant_name: string;
+  type: string;
+  next_at: string;
+  repeat_days: number | null;
+  enabled: boolean;
+};
+
+export type Observation = {
+  id: string;
+  plant_id: string;
+  notes: string | null;
+  photo_url: string | null;
+  created_at: string;
+};
+
+export function photoUrl(path: string | null) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `${API_URL}${path}`;
+}
 
 async function request<T>(
   path: string,
@@ -41,7 +79,15 @@ async function request<T>(
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  } catch {
+    throw new Error(
+      `Не удалось подключиться к API (${API_URL}). Запусти: cd api && go run ./cmd/server`
+    );
+  }
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error ?? `HTTP ${res.status}`);
@@ -74,15 +120,26 @@ export async function logout() {
   await AsyncStorage.removeItem(TOKEN_KEY);
 }
 
+export async function getLibrary(type?: string) {
+  const q = type ? `?type=${type}` : "";
+  return request<PlantSpecies[]>(`/api/v1/library${q}`);
+}
+
+export async function getLibraryItem(id: string) {
+  return request<PlantSpecies>(`/api/v1/library/${id}`);
+}
+
 export async function getPlants() {
   return request<Plant[]>("/api/v1/plants");
 }
 
 export async function createPlant(data: {
   name: string;
-  species: string;
+  species?: string;
+  species_id?: string;
   location?: string;
   notes?: string;
+  planted_at?: string;
 }) {
   return request<Plant>("/api/v1/plants", {
     method: "POST",
@@ -98,14 +155,33 @@ export async function getCareLogs(plantId: string) {
   return request<CareLog[]>(`/api/v1/plants/${plantId}/care-logs`);
 }
 
-export async function addCareLog(
-  plantId: string,
-  type: string,
-  notes?: string
-) {
+export async function addCareLog(plantId: string, type: string, notes?: string) {
   return request<CareLog>(`/api/v1/plants/${plantId}/care-logs`, {
     method: "POST",
     body: JSON.stringify({ type, notes }),
+  });
+}
+
+export async function getCalendar(days = 30) {
+  return request<CalendarTask[]>(`/api/v1/calendar?days=${days}`);
+}
+
+export async function completeTask(taskId: string) {
+  return request<void>(`/api/v1/calendar/${taskId}/complete`, { method: "POST" });
+}
+
+export async function getObservations(plantId: string) {
+  return request<Observation[]>(`/api/v1/plants/${plantId}/observations`);
+}
+
+export async function addObservation(
+  plantId: string,
+  notes?: string,
+  photoBase64?: string
+) {
+  return request<Observation>(`/api/v1/plants/${plantId}/observations`, {
+    method: "POST",
+    body: JSON.stringify({ notes, photo_base64: photoBase64 }),
   });
 }
 

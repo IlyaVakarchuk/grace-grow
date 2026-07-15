@@ -55,7 +55,7 @@ func (r *Repository) GetUserByID(ctx context.Context, id uuid.UUID) (model.User,
 
 func (r *Repository) ListPlants(ctx context.Context, userID uuid.UUID) ([]model.Plant, error) {
 	rows, err := r.pool.Query(ctx, `
-		SELECT id, user_id, name, species, location, planted_at, notes, created_at, updated_at
+		SELECT id, user_id, species_id, name, species, location, planted_at, notes, created_at, updated_at
 		FROM plants WHERE user_id = $1 ORDER BY created_at DESC
 	`, userID)
 	if err != nil {
@@ -66,7 +66,7 @@ func (r *Repository) ListPlants(ctx context.Context, userID uuid.UUID) ([]model.
 	var plants []model.Plant
 	for rows.Next() {
 		var p model.Plant
-		if err := rows.Scan(&p.ID, &p.UserID, &p.Name, &p.Species, &p.Location, &p.PlantedAt, &p.Notes, &p.CreatedAt, &p.UpdatedAt); err != nil {
+		if err := rows.Scan(&p.ID, &p.UserID, &p.SpeciesID, &p.Name, &p.Species, &p.Location, &p.PlantedAt, &p.Notes, &p.CreatedAt, &p.UpdatedAt); err != nil {
 			return nil, err
 		}
 		plants = append(plants, p)
@@ -74,14 +74,14 @@ func (r *Repository) ListPlants(ctx context.Context, userID uuid.UUID) ([]model.
 	return plants, rows.Err()
 }
 
-func (r *Repository) CreatePlant(ctx context.Context, userID uuid.UUID, name, species string, location, notes *string, plantedAt time.Time) (model.Plant, error) {
+func (r *Repository) CreatePlant(ctx context.Context, userID uuid.UUID, speciesID *uuid.UUID, name, species string, location, notes *string, plantedAt time.Time) (model.Plant, error) {
 	var p model.Plant
 	err := r.pool.QueryRow(ctx, `
-		INSERT INTO plants (user_id, name, species, location, notes, planted_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING id, user_id, name, species, location, planted_at, notes, created_at, updated_at
-	`, userID, name, species, location, notes, plantedAt).Scan(
-		&p.ID, &p.UserID, &p.Name, &p.Species, &p.Location, &p.PlantedAt, &p.Notes, &p.CreatedAt, &p.UpdatedAt,
+		INSERT INTO plants (user_id, species_id, name, species, location, notes, planted_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id, user_id, species_id, name, species, location, planted_at, notes, created_at, updated_at
+	`, userID, speciesID, name, species, location, notes, plantedAt).Scan(
+		&p.ID, &p.UserID, &p.SpeciesID, &p.Name, &p.Species, &p.Location, &p.PlantedAt, &p.Notes, &p.CreatedAt, &p.UpdatedAt,
 	)
 	return p, err
 }
@@ -89,10 +89,10 @@ func (r *Repository) CreatePlant(ctx context.Context, userID uuid.UUID, name, sp
 func (r *Repository) GetPlant(ctx context.Context, userID, plantID uuid.UUID) (model.Plant, error) {
 	var p model.Plant
 	err := r.pool.QueryRow(ctx, `
-		SELECT id, user_id, name, species, location, planted_at, notes, created_at, updated_at
+		SELECT id, user_id, species_id, name, species, location, planted_at, notes, created_at, updated_at
 		FROM plants WHERE id = $1 AND user_id = $2
 	`, plantID, userID).Scan(
-		&p.ID, &p.UserID, &p.Name, &p.Species, &p.Location, &p.PlantedAt, &p.Notes, &p.CreatedAt, &p.UpdatedAt,
+		&p.ID, &p.UserID, &p.SpeciesID, &p.Name, &p.Species, &p.Location, &p.PlantedAt, &p.Notes, &p.CreatedAt, &p.UpdatedAt,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return p, ErrNotFound
@@ -105,9 +105,9 @@ func (r *Repository) UpdatePlant(ctx context.Context, userID, plantID uuid.UUID,
 	err := r.pool.QueryRow(ctx, `
 		UPDATE plants SET name=$3, species=$4, location=$5, notes=$6, planted_at=$7, updated_at=now()
 		WHERE id=$1 AND user_id=$2
-		RETURNING id, user_id, name, species, location, planted_at, notes, created_at, updated_at
+		RETURNING id, user_id, species_id, name, species, location, planted_at, notes, created_at, updated_at
 	`, plantID, userID, name, species, location, notes, plantedAt).Scan(
-		&p.ID, &p.UserID, &p.Name, &p.Species, &p.Location, &p.PlantedAt, &p.Notes, &p.CreatedAt, &p.UpdatedAt,
+		&p.ID, &p.UserID, &p.SpeciesID, &p.Name, &p.Species, &p.Location, &p.PlantedAt, &p.Notes, &p.CreatedAt, &p.UpdatedAt,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return p, ErrNotFound

@@ -13,16 +13,30 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type PlantSpecies struct {
+	ID            uuid.UUID `json:"id"`
+	Slug          string    `json:"slug"`
+	Name          string    `json:"name"`
+	Type          string    `json:"type"`
+	Light         string    `json:"light"`
+	Humidity      string    `json:"humidity"`
+	WaterDays     int       `json:"water_days"`
+	FertilizeDays *int      `json:"fertilize_days"`
+	RepotDays     *int      `json:"repot_days"`
+	Description   *string   `json:"description"`
+}
+
 type Plant struct {
-	ID        uuid.UUID `json:"id"`
-	UserID    uuid.UUID `json:"user_id"`
-	Name      string    `json:"name"`
-	Species   string    `json:"species"`
-	Location  *string   `json:"location"`
-	PlantedAt time.Time `json:"planted_at"`
-	Notes     *string   `json:"notes"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uuid.UUID  `json:"id"`
+	UserID    uuid.UUID  `json:"user_id"`
+	SpeciesID *uuid.UUID `json:"species_id"`
+	Name      string     `json:"name"`
+	Species   string     `json:"species"`
+	Location  *string    `json:"location"`
+	PlantedAt time.Time  `json:"planted_at"`
+	Notes     *string    `json:"notes"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 type CareLog struct {
@@ -42,6 +56,24 @@ type Reminder struct {
 	Enabled    bool      `json:"enabled"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+type CalendarTask struct {
+	ID         uuid.UUID `json:"id"`
+	PlantID    uuid.UUID `json:"plant_id"`
+	PlantName  string    `json:"plant_name"`
+	Type       string    `json:"type"`
+	NextAt     time.Time `json:"next_at"`
+	RepeatDays *int      `json:"repeat_days"`
+	Enabled    bool      `json:"enabled"`
+}
+
+type Observation struct {
+	ID        uuid.UUID `json:"id"`
+	PlantID   uuid.UUID `json:"plant_id"`
+	Notes     *string   `json:"notes"`
+	PhotoURL  *string   `json:"photo_url"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Photo struct {

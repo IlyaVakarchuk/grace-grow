@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/vakarchukiv/grace/api/internal/middleware"
@@ -55,7 +56,8 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.repo.CreateUser(r.Context(), req.Email, string(hash), req.Name)
 	if err != nil {
-		if strings.Contains(err.Error(), "duplicate") {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			writeError(w, http.StatusConflict, "email already exists")
 			return
 		}
@@ -134,6 +136,7 @@ func (h *Handler) ListPlants(w http.ResponseWriter, r *http.Request) {
 type plantRequest struct {
 	Name      string  `json:"name"`
 	Species   string  `json:"species"`
+	SpeciesID *string `json:"species_id"`
 	Location  *string `json:"location"`
 	Notes     *string `json:"notes"`
 	PlantedAt *string `json:"planted_at"`
@@ -149,15 +152,13 @@ func (h *Handler) CreatePlant(w http.ResponseWriter, r *http.Request) {
 	if req.Species == "" {
 		req.Species = "other"
 	}
-	plantedAt := time.Now()
-	if req.PlantedAt != nil {
-		if t, err := time.Parse("2006-01-02", *req.PlantedAt); err == nil {
-			plantedAt = t
-		}
-	}
 
-	plant, err := h.repo.CreatePlant(r.Context(), userID, req.Name, req.Species, req.Location, req.Notes, plantedAt)
+	plant, err := h.createPlantWithReminders(r.Context(), userID, req)
 	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			writeError(w, http.StatusBadRequest, "species not found")
+			return
+		}
 		writeError(w, http.StatusInternalServerError, "create failed")
 		return
 	}

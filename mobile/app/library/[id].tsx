@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,9 @@ import {
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { createPlant, getLibraryItem, PlantSpecies } from "@/lib/api";
 import { TYPE_LABELS } from "@/lib/labels";
+import { speciesToDetailSections } from "@/lib/plantDisplay";
+import { PlantInfoSections } from "@/components/PlantInfoSections";
+import { SafePlantImage } from "@/components/SafePlantImage";
 import { colors, radii, spacing } from "@/lib/theme";
 
 export default function LibraryDetailScreen() {
@@ -34,6 +37,11 @@ export default function LibraryDetailScreen() {
     useCallback(() => {
       load();
     }, [load])
+  );
+
+  const sections = useMemo(
+    () => (item ? speciesToDetailSections(item) : []),
+    [item]
   );
 
   async function handleAdd() {
@@ -64,38 +72,48 @@ export default function LibraryDetailScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <View style={styles.hero}>
+        <SafePlantImage
+          uri={item.image_url}
+          typeKey={item.type}
+          style={styles.heroFill}
+          emojiSize={64}
+        />
+      </View>
+
       <Text style={styles.title}>{item.name}</Text>
-      <Text style={styles.badge}>
-        {TYPE_LABELS[item.type]}
-        {item.source === "trefle" ? " · Trefle" : ""}
-      </Text>
       {item.scientific_name ? (
         <Text style={styles.scientific}>{item.scientific_name}</Text>
       ) : null}
 
-      <View style={styles.info}>
-        <Text style={styles.label}>☀️ Свет</Text>
-        <Text style={styles.value}>{item.light}</Text>
-        <Text style={styles.label}>💧 Влажность</Text>
-        <Text style={styles.value}>{item.humidity}</Text>
-        <Text style={styles.label}>🚿 Полив</Text>
-        <Text style={styles.value}>каждые {item.water_days} дн.</Text>
-        {item.fertilize_days ? (
-          <>
-            <Text style={styles.label}>🌿 Удобрение</Text>
-            <Text style={styles.value}>каждые {item.fertilize_days} дн.</Text>
-          </>
+      <View style={styles.badges}>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{TYPE_LABELS[item.type]}</Text>
+        </View>
+        {item.source === "trefle" ? (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>Trefle</Text>
+          </View>
         ) : null}
-        {item.repot_days ? (
-          <>
-            <Text style={styles.label}>🪴 Пересадка</Text>
-            <Text style={styles.value}>каждые {item.repot_days} дн.</Text>
-          </>
+        {item.family ? (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{item.family}</Text>
+          </View>
+        ) : null}
+        {item.genus ? (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{item.genus}</Text>
+          </View>
         ) : null}
       </View>
 
+      <PlantInfoSections sections={sections} />
+
       {item.description ? (
-        <Text style={styles.desc}>{item.description}</Text>
+        <View style={styles.descBox}>
+          <Text style={styles.descTitle}>Описание</Text>
+          <Text style={styles.desc}>{item.description}</Text>
+        </View>
       ) : null}
 
       <Text style={styles.section}>Добавить в мой сад</Text>
@@ -125,17 +143,75 @@ export default function LibraryDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg },
-  center: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg },
-  title: { fontSize: 26, fontWeight: "700", color: colors.text },
-  badge: { color: colors.accent, marginTop: 4, marginBottom: spacing.sm },
-  scientific: { color: colors.textSecondary, marginBottom: spacing.lg },
-  info: { backgroundColor: colors.card, borderRadius: radii.lg, padding: spacing.lg, gap: 4 },
-  label: { fontWeight: "600", marginTop: spacing.sm, color: colors.text },
-  value: { color: colors.textSecondary },
-  desc: { marginTop: spacing.lg, color: colors.textSecondary, lineHeight: 22 },
-  section: { fontSize: 18, fontWeight: "600", marginTop: spacing.xl, marginBottom: spacing.md, color: colors.text },
-  error: { color: colors.error, marginBottom: spacing.sm },
+  content: { paddingBottom: spacing.xl },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.bg,
+  },
+  hero: {
+    height: 220,
+    backgroundColor: colors.card,
+    marginBottom: spacing.lg,
+  },
+  heroFill: { width: "100%", height: "100%" },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: colors.text,
+    paddingHorizontal: spacing.lg,
+  },
+  scientific: {
+    color: colors.textSecondary,
+    fontStyle: "italic",
+    paddingHorizontal: spacing.lg,
+    marginTop: 4,
+  },
+  badges: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  badge: {
+    backgroundColor: colors.chip,
+    borderRadius: radii.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  badgeText: { color: colors.text, fontSize: 12, fontWeight: "600" },
+  descBox: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    backgroundColor: colors.card,
+    borderRadius: radii.lg,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  descTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+  desc: { color: colors.textSecondary, lineHeight: 22 },
+  section: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
+    color: colors.text,
+    paddingHorizontal: spacing.lg,
+  },
+  error: {
+    color: colors.error,
+    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.lg,
+  },
   input: {
     backgroundColor: colors.input,
     borderWidth: 1,
@@ -143,6 +219,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     padding: 14,
     marginBottom: 10,
+    marginHorizontal: spacing.lg,
     color: colors.text,
   },
   btn: {
@@ -151,6 +228,7 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: "center",
     marginTop: spacing.sm,
+    marginHorizontal: spacing.lg,
   },
   btnText: { color: colors.text, fontWeight: "600" },
 });

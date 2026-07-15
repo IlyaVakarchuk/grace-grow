@@ -9,6 +9,22 @@ export type User = {
   name: string;
 };
 
+export type TrefleMeta = {
+  family?: string;
+  genus?: string;
+  growth_habit?: string;
+  growth_form?: string;
+  ligneous_type?: string;
+  growth_description?: string;
+  light_level?: number | null;
+  light_label?: string;
+  soil_humidity_level?: number | null;
+  soil_humidity_label?: string;
+  atmospheric_humidity_level?: number | null;
+  atmospheric_humidity_label?: string;
+  days_to_harvest?: number | null;
+};
+
 export type PlantSpecies = {
   id: string;
   slug: string;
@@ -23,6 +39,9 @@ export type PlantSpecies = {
   trefle_id?: number | null;
   image_url?: string | null;
   scientific_name?: string | null;
+  family?: string | null;
+  genus?: string | null;
+  trefle_data?: TrefleMeta | null;
   source?: string;
 };
 
@@ -32,6 +51,7 @@ export type TrefleSearchHit = {
   name: string;
   scientific_name: string;
   family: string;
+  genus: string;
   image_url?: string | null;
   imported: boolean;
   species_id?: string | null;
@@ -77,6 +97,22 @@ export function photoUrl(path: string | null) {
   if (!path) return null;
   if (path.startsWith("http")) return path;
   return `${API_URL}${path}`;
+}
+
+/** Resolve displayable plant image URL. Skip PlantNet — CDN is dead here. */
+export function plantImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (/plantnet\.org/i.test(url)) return null;
+  if (url.startsWith("/uploads/") || (url.startsWith("/") && !url.startsWith("//"))) {
+    return `${API_URL}${url}`;
+  }
+  if (url.startsWith(API_URL)) return url;
+  if (/^https?:\/\//i.test(url)) {
+    // Wikimedia etc. — load directly; proxy only if CORS becomes an issue
+    if (/wikimedia\.org|wikipedia\.org/i.test(url)) return url;
+    return `${API_URL}/api/v1/media?url=${encodeURIComponent(url)}`;
+  }
+  return `${API_URL}${url}`;
 }
 
 async function request<T>(

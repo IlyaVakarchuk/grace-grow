@@ -16,10 +16,11 @@ import {
   PlantSpecies,
   TrefleSearchHit,
 } from "@/lib/api";
-import { TYPE_LABELS, FILTER_CHIPS } from "@/lib/labels";
+import { FILTER_CHIPS } from "@/lib/labels";
 import { FilterChips } from "@/components/FilterChips";
-import { PlantCard } from "@/components/PlantCard";
+import { PlantLibraryCard } from "@/components/PlantLibraryCard";
 import { ScreenHeader } from "@/components/ScreenHeader";
+import { speciesToCard, trefleHitToCard } from "@/lib/plantDisplay";
 import { colors, radii, spacing } from "@/lib/theme";
 
 export default function LibraryScreen() {
@@ -111,8 +112,6 @@ export default function LibraryScreen() {
         keyExtractor={(i) =>
           "trefle_id" in i ? `trefle-${i.trefle_id}` : i.id
         }
-        numColumns={2}
-        columnWrapperStyle={styles.row}
         contentContainerStyle={styles.list}
         refreshControl={
           !showTrefle ? (
@@ -132,16 +131,12 @@ export default function LibraryScreen() {
             <Text style={styles.empty}>Ничего не найдено в Trefle</Text>
           ) : null
         }
-        renderItem={({ item, index }) => {
+        renderItem={({ item }) => {
           if (showTrefle) {
             const hit = item as TrefleSearchHit;
             return (
-              <PlantCard
-                name={hit.name}
-                type="other"
-                subtitle={`${hit.scientific_name} · ${hit.family}`}
-                imageUrl={hit.image_url}
-                badge={hit.imported ? "Уже в библиотеке" : importingSlug === hit.slug ? "Импорт..." : "Trefle"}
+              <PlantLibraryCard
+                data={trefleHitToCard(hit, importingSlug === hit.slug)}
                 onPress={() => handleTreflePress(hit)}
               />
             );
@@ -149,13 +144,8 @@ export default function LibraryScreen() {
 
           const plant = item as PlantSpecies;
           return (
-            <PlantCard
-              name={plant.name}
-              type={TYPE_LABELS[plant.type] ?? plant.type}
-              waterDays={plant.water_days}
-              light={plant.light}
-              imageUrl={plant.image_url}
-              selected={index === 0}
+            <PlantLibraryCard
+              data={speciesToCard(plant)}
               onPress={() => router.push(`/library/${plant.id}`)}
             />
           );
@@ -195,6 +185,5 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: 40,
   },
-  list: { paddingBottom: spacing.xl, gap: spacing.md },
-  row: { gap: spacing.md, paddingHorizontal: spacing.lg, marginBottom: spacing.md },
+  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
 });

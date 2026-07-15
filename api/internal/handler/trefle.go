@@ -44,16 +44,29 @@ func (h *Handler) SearchTrefle(w http.ResponseWriter, r *http.Request) {
 			Name:           trefle.DisplayName(hit),
 			ScientificName: hit.ScientificName,
 			Family:         hit.Family,
-			ImageURL:       hit.ImageURL,
+			Genus:          hit.Genus,
 		}
+
+		// Prefer local cached image; never send PlantNet URLs to the client
+		// (CDN times out and hangs the UI).
 		if sp, err := h.repo.GetSpeciesByTrefleID(r.Context(), hit.ID); err == nil {
 			item.Imported = true
 			id := sp.ID.String()
 			item.SpeciesID = &id
+			if sp.ImageURL != nil && !isPlantNetURL(*sp.ImageURL) {
+				item.ImageURL = sp.ImageURL
+			}
 		} else if err != repository.ErrNotFound {
 			writeError(w, http.StatusInternalServerError, "lookup failed")
 			return
 		}
+
+		if item.ImageURL == nil {
+			if wiki, err := resolveWikipediaImage(r.Context(), hit.ScientificName, trefle.DisplayName(hit)); err == nil {
+				item.ImageURL = &wiki
+			}
+		}
+
 		results = append(results, item)
 	}
 
@@ -91,8 +104,28 @@ func (h *Handler) ImportFromTrefle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	species := trefle.ToPlantSpecies(detail)
+	common := detail.ScientificName
+	if detail.CommonName != nil {
+		common = *detail.CommonName
+	}
+	species.ImageURL = resolveAndCacheImage(
+		r.Context(),
+		detail.Slug,
+		detail.ScientificName,
+		common,
+		detail.ImageURL,
+	)
+
 	if detail.ID > 0 {
 		if existing, err := h.repo.GetSpeciesByTrefleID(r.Context(), detail.ID); err == nil {
+			// Refresh image if we have a better local/wiki URL now.
+			if species.ImageURL != nil && (existing.ImageURL == nil || isPlantNetURL(*existing.ImageURL)) {
+				existing.ImageURL = species.ImageURL
+				if saved, err := h.repo.UpsertSpecies(r.Context(), existing); err == nil {
+					writeJSON(w, http.StatusOK, saved)
+					return
+				}
+			}
 			writeJSON(w, http.StatusOK, existing)
 			return
 		} else if err != repository.ErrNotFound {

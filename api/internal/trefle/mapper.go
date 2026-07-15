@@ -19,24 +19,40 @@ func ToPlantSpecies(d SpeciesDetail) model.PlantSpecies {
 	fertilizeDays := 30
 	repotDays := 365
 	desc := buildDescription(d)
+	meta := buildTrefleMeta(d)
 
 	if d.Growth != nil {
 		if d.Growth.Light != nil {
 			light = formatLight(*d.Growth.Light)
+			meta.LightLevel = d.Growth.Light
+			meta.LightLabel = light
 		}
 		if d.Growth.SoilHumidity != nil {
 			humidity = formatHumidity(*d.Growth.SoilHumidity)
 			waterDays = waterDaysFromHumidity(*d.Growth.SoilHumidity)
+			meta.SoilHumidityLevel = d.Growth.SoilHumidity
+			meta.SoilHumidityLabel = humidity
 		} else if d.Growth.AtmosphericHumidity != nil {
 			humidity = formatHumidity(*d.Growth.AtmosphericHumidity)
 			waterDays = waterDaysFromHumidity(*d.Growth.AtmosphericHumidity)
+			meta.AtmosphericHumidityLevel = d.Growth.AtmosphericHumidity
+			meta.AtmosphericHumidityLabel = humidity
 		}
 		if d.Growth.DaysToHarvest != nil && *d.Growth.DaysToHarvest > 0 {
 			fertilizeDays = clamp(*d.Growth.DaysToHarvest/4, 14, 90)
+			meta.DaysToHarvest = d.Growth.DaysToHarvest
 		}
 	}
 
 	trefleID := d.ID
+	var family, genus *string
+	if d.Family != "" {
+		family = &d.Family
+	}
+	if d.Genus != "" {
+		genus = &d.Genus
+	}
+
 	return model.PlantSpecies{
 		Slug:           d.Slug,
 		Name:           name,
@@ -50,24 +66,44 @@ func ToPlantSpecies(d SpeciesDetail) model.PlantSpecies {
 		TrefleID:       &trefleID,
 		ImageURL:       d.ImageURL,
 		ScientificName: &d.ScientificName,
+		Family:         family,
+		Genus:          genus,
+		TrefleData:     &meta,
 		Source:         "trefle",
 	}
 }
 
+func buildTrefleMeta(d SpeciesDetail) model.TrefleMeta {
+	meta := model.TrefleMeta{
+		Family: d.Family,
+		Genus:  d.Genus,
+	}
+	if d.Specifications != nil {
+		meta.GrowthHabit = d.Specifications.GrowthHabit
+		meta.GrowthForm = d.Specifications.GrowthForm
+		meta.LigneousType = d.Specifications.LigneousType
+	}
+	if d.Growth != nil && d.Growth.Description != nil {
+		meta.GrowthDescription = strings.TrimSpace(*d.Growth.Description)
+	}
+	return meta
+}
+
 func buildDescription(d SpeciesDetail) string {
-	parts := []string{
-		d.ScientificName,
-	}
-	if d.Family != "" {
-		parts = append(parts, "Семейство: "+d.Family)
-	}
-	if d.Genus != "" {
-		parts = append(parts, "Род: "+d.Genus)
-	}
+	parts := []string{}
 	if d.Growth != nil && d.Growth.Description != nil && strings.TrimSpace(*d.Growth.Description) != "" {
 		parts = append(parts, strings.TrimSpace(*d.Growth.Description))
 	}
-	return strings.Join(parts, ". ")
+	if len(parts) == 0 {
+		parts = append(parts, d.ScientificName)
+		if d.Family != "" {
+			parts = append(parts, "Семейство: "+d.Family)
+		}
+		if d.Genus != "" {
+			parts = append(parts, "Род: "+d.Genus)
+		}
+	}
+	return strings.Join(parts, " ")
 }
 
 func inferType(d SpeciesDetail) string {
@@ -141,8 +177,27 @@ func DisplayName(hit SearchHit) string {
 }
 
 func SearchSubtitle(hit SearchHit) string {
-	if hit.ScientificName != "" {
-		return fmt.Sprintf("%s · %s", hit.ScientificName, hit.Family)
+	parts := []string{hit.ScientificName}
+	if hit.Genus != "" {
+		parts = append(parts, hit.Genus)
 	}
-	return hit.Family
+	if hit.Family != "" {
+		parts = append(parts, hit.Family)
+	}
+	return strings.Join(parts, " · ")
+}
+
+func SearchTags(hit SearchHit) []string {
+	tags := []string{}
+	if hit.Genus != "" {
+		tags = append(tags, "Род: "+hit.Genus)
+	}
+	if hit.Family != "" {
+		tags = append(tags, hit.Family)
+	}
+	return tags
+}
+
+func LevelBar(level int) string {
+	return fmt.Sprintf("%d/10", level)
 }

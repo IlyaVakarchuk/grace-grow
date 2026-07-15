@@ -11,7 +11,8 @@ import { useFocusEffect } from "expo-router";
 import { completeTask, getCalendar, CalendarTask } from "@/lib/api";
 import { TASK_LABELS } from "@/lib/labels";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { colors, radii, spacing } from "@/lib/theme";
+import { useTheme, useThemedStyles } from "@/lib/ThemeContext";
+import { radii, spacing, type ThemeColors } from "@/lib/theme";
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -23,7 +24,38 @@ function formatDate(iso: string) {
   return d.toLocaleDateString("ru-RU");
 }
 
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
+    error: { color: colors.error, padding: spacing.md, textAlign: "center" },
+    empty: { textAlign: "center", marginTop: 80, color: colors.textSecondary },
+    card: {
+      flexDirection: "row",
+      backgroundColor: colors.card,
+      marginBottom: spacing.md,
+      padding: spacing.lg,
+      borderRadius: radii.lg,
+      alignItems: "center",
+    },
+    cardBody: { flex: 1 },
+    task: { fontSize: 16, fontWeight: "600", color: colors.text },
+    plant: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
+    date: { fontSize: 13, color: colors.accent, marginTop: 4 },
+    doneBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.accentDark,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    doneText: { color: colors.onAccent, fontSize: 18, fontWeight: "700" },
+  });
+
 export default function CalendarScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [tasks, setTasks] = useState<CalendarTask[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -90,31 +122,3 @@ export default function CalendarScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
-  error: { color: colors.error, padding: spacing.md, textAlign: "center" },
-  empty: { textAlign: "center", marginTop: 80, color: colors.textSecondary },
-  card: {
-    flexDirection: "row",
-    backgroundColor: colors.card,
-    marginBottom: spacing.md,
-    padding: spacing.lg,
-    borderRadius: radii.lg,
-    alignItems: "center",
-  },
-  cardBody: { flex: 1 },
-  task: { fontSize: 16, fontWeight: "600", color: colors.text },
-  plant: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
-  date: { fontSize: 13, color: colors.accent, marginTop: 4 },
-  doneBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.accentDark,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  doneText: { color: colors.text, fontSize: 18, fontWeight: "700" },
-});

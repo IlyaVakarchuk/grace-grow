@@ -11,7 +11,7 @@ export default function Root({ children }: PropsWithChildren) {
         <title>GraceGrow — Plant Monitoring</title>
         <link rel="icon" href="/assets/favicon.png" />
         <ScrollViewStyleReset />
-        <style>{`body { background-color: #121212; }`}</style>
+        <style>{`body { background-color: #F8FFF8; color-scheme: light dark; }`}</style>
       </head>
       <body>{children}</body>
     </html>

@@ -15,15 +15,17 @@ import (
 	"github.com/vakarchukiv/grace/api/internal/middleware"
 	"github.com/vakarchukiv/grace/api/internal/model"
 	"github.com/vakarchukiv/grace/api/internal/repository"
+	"github.com/vakarchukiv/grace/api/internal/trefle"
 )
 
 type Handler struct {
 	repo      *repository.Repository
 	jwtSecret string
+	trefle    *trefle.Client
 }
 
-func New(repo *repository.Repository, jwtSecret string) *Handler {
-	return &Handler{repo: repo, jwtSecret: jwtSecret}
+func New(repo *repository.Repository, jwtSecret string, trefle *trefle.Client) *Handler {
+	return &Handler{repo: repo, jwtSecret: jwtSecret, trefle: trefle}
 }
 
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {

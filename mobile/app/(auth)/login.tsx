@@ -11,9 +11,55 @@ import {
 import { router } from "expo-router";
 import { login, register } from "@/lib/api";
 import { Logo } from "@/components/Logo";
-import { colors, radii, spacing } from "@/lib/theme";
+import { useTheme, useThemedStyles } from "@/lib/ThemeContext";
+import { radii, spacing, type ThemeColors } from "@/lib/theme";
+
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      padding: spacing.xl,
+      backgroundColor: colors.bg,
+    },
+    subtitle: {
+      fontSize: 16,
+      textAlign: "center",
+      color: colors.textSecondary,
+      marginBottom: 32,
+    },
+    error: {
+      backgroundColor: colors.errorBg,
+      color: colors.error,
+      padding: spacing.md,
+      borderRadius: radii.sm,
+      marginBottom: spacing.lg,
+      textAlign: "center",
+    },
+    input: {
+      backgroundColor: colors.input,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radii.md,
+      padding: 14,
+      marginBottom: spacing.md,
+      fontSize: 16,
+      color: colors.text,
+    },
+    btn: {
+      backgroundColor: colors.accentDark,
+      borderRadius: radii.md,
+      padding: 16,
+      alignItems: "center",
+      marginTop: spacing.sm,
+    },
+    btnText: { color: colors.onAccent, fontSize: 16, fontWeight: "600" },
+    link: { textAlign: "center", color: colors.accent, marginTop: spacing.lg },
+  });
 
 export default function LoginScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -89,45 +135,3 @@ export default function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: spacing.xl,
-    backgroundColor: colors.bg,
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-    color: colors.textSecondary,
-    marginBottom: 32,
-  },
-  error: {
-    backgroundColor: colors.errorBg,
-    color: colors.error,
-    padding: spacing.md,
-    borderRadius: radii.sm,
-    marginBottom: spacing.lg,
-    textAlign: "center",
-  },
-  input: {
-    backgroundColor: colors.input,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    padding: 14,
-    marginBottom: spacing.md,
-    fontSize: 16,
-    color: colors.text,
-  },
-  btn: {
-    backgroundColor: colors.accentDark,
-    borderRadius: radii.md,
-    padding: 16,
-    alignItems: "center",
-    marginTop: spacing.sm,
-  },
-  btnText: { color: colors.text, fontSize: 16, fontWeight: "600" },
-  link: { textAlign: "center", color: colors.accent, marginTop: spacing.lg },
-});

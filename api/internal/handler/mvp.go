@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -28,6 +29,33 @@ func (h *Handler) ListLibrary(w http.ResponseWriter, r *http.Request) {
 	if list == nil {
 		list = []model.PlantSpecies{}
 	}
+
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 4)
+	for i := range list {
+		if list[i].ImageURL != nil && !isPlantNetURL(*list[i].ImageURL) {
+			continue
+		}
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			enriched := enrichSpeciesImage(r.Context(), list[idx])
+			if enriched.ImageURL != nil {
+				if saved, err := h.repo.UpsertSpecies(r.Context(), enriched); err == nil {
+					list[idx] = saved
+				} else {
+					list[idx] = enriched
+				}
+			} else {
+				list[idx].ImageURL = nil
+			}
+		}(i)
+	}
+	wg.Wait()
+
 	writeJSON(w, http.StatusOK, list)
 }
 
@@ -42,6 +70,16 @@ func (h *Handler) GetLibraryItem(w http.ResponseWriter, r *http.Request) {
 		h.handleRepoErr(w, err)
 		return
 	}
+
+	if item.ImageURL == nil || isPlantNetURL(*item.ImageURL) {
+		item = enrichSpeciesImage(r.Context(), item)
+		if item.ImageURL != nil {
+			if saved, err := h.repo.UpsertSpecies(r.Context(), item); err == nil {
+				item = saved
+			}
+		}
+	}
+
 	writeJSON(w, http.StatusOK, item)
 }
 

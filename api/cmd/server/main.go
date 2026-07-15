@@ -20,6 +20,7 @@ import (
 	"github.com/vakarchukiv/grace/api/internal/handler"
 	"github.com/vakarchukiv/grace/api/internal/middleware"
 	"github.com/vakarchukiv/grace/api/internal/repository"
+	"github.com/vakarchukiv/grace/api/internal/trefle"
 )
 
 func main() {
@@ -53,7 +54,8 @@ func main() {
 	}
 
 	repo := repository.New(pool)
-	h := handler.New(repo, cfg.JWTSecret)
+	trefleClient := trefle.New(cfg.TrefleToken)
+	h := handler.New(repo, cfg.JWTSecret, trefleClient)
 
 	r := chi.NewRouter()
 	r.Use(chimw.Logger)
@@ -68,6 +70,7 @@ func main() {
 	}))
 
 	r.Get("/health", h.Health)
+	r.Get("/api/v1/media", h.ProxyImage)
 	r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
 	r.Route("/api/v1", func(r chi.Router) {
@@ -79,6 +82,8 @@ func main() {
 
 			r.Get("/me", h.Me)
 			r.Get("/library", h.ListLibrary)
+			r.Get("/library/search", h.SearchTrefle)
+			r.Post("/library/import", h.ImportFromTrefle)
 			r.Get("/library/{id}", h.GetLibraryItem)
 			r.Get("/calendar", h.Calendar)
 			r.Post("/calendar/{id}/complete", h.CompleteTask)
@@ -106,8 +111,8 @@ func main() {
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,
 		Handler:      r,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 60 * time.Second,
 	}
 
 	go func() {

@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { Redirect } from "expo-router";
 import { hasToken } from "@/lib/api";
+import { useTheme } from "@/lib/ThemeContext";
 
 export default function Index() {
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
   const [authed, setAuthed] = useState(false);
 
@@ -16,8 +18,15 @@ export default function Index() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#2D6A4F" />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.bg,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }

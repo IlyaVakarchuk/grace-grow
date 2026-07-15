@@ -25,6 +25,7 @@ import {
   photoUrl,
 } from "@/lib/api";
 import { TASK_LABELS } from "@/lib/labels";
+import { colors, radii, spacing } from "@/lib/theme";
 
 const ACTIONS = ["water", "fertilize", "repot", "harvest", "prune"];
 
@@ -112,7 +113,7 @@ export default function PlantDetailScreen() {
   if (loading || !plant) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#2D6A4F" />
+        <ActivityIndicator color={colors.accent} />
       </View>
     );
   }
@@ -130,7 +131,7 @@ export default function PlantDetailScreen() {
       <View style={styles.actions}>
         {ACTIONS.map((a) => (
           <Pressable key={a} style={styles.actionBtn} onPress={() => handleAction(a)}>
-            <Text>{TASK_LABELS[a]}</Text>
+            <Text style={styles.actionText}>{TASK_LABELS[a]}</Text>
           </Pressable>
         ))}
       </View>
@@ -139,6 +140,7 @@ export default function PlantDetailScreen() {
       <TextInput
         style={styles.input}
         placeholder="Заметка о росте..."
+        placeholderTextColor={colors.textMuted}
         value={note}
         onChangeText={setNote}
         multiline
@@ -148,7 +150,7 @@ export default function PlantDetailScreen() {
           <Text style={styles.btnText}>Сохранить заметку</Text>
         </Pressable>
         <Pressable style={styles.photoBtn} onPress={handlePickPhoto}>
-          <Text>📷 Фото</Text>
+          <Text style={styles.actionText}>📷 Фото</Text>
         </Pressable>
       </View>
 
@@ -187,67 +189,69 @@ export default function PlantDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F8FFF8" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  name: { fontSize: 24, fontWeight: "700", color: "#1B4332" },
-  meta: { color: "#666", marginBottom: 12 },
-  error: { color: "#B91C1C", marginBottom: 8 },
-  section: { fontSize: 16, fontWeight: "600", marginTop: 16, marginBottom: 8 },
-  actions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  center: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg },
+  name: { fontSize: 24, fontWeight: "700", color: colors.text },
+  meta: { color: colors.textSecondary, marginBottom: spacing.md },
+  error: { color: colors.error, marginBottom: spacing.sm },
+  section: { fontSize: 16, fontWeight: "600", marginTop: spacing.lg, marginBottom: spacing.sm, color: colors.text },
+  actions: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   actionBtn: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "#D8F3DC",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderColor: colors.border,
+    borderRadius: radii.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
+  actionText: { color: colors.text },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: "#D8F3DC",
-    borderRadius: 10,
-    padding: 12,
+    borderColor: colors.border,
+    borderRadius: radii.sm,
+    padding: spacing.md,
     minHeight: 60,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    color: colors.text,
   },
-  row: { flexDirection: "row", gap: 8, marginBottom: 12 },
+  row: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
   btn: {
     flex: 1,
-    backgroundColor: "#2D6A4F",
-    borderRadius: 10,
-    padding: 12,
+    backgroundColor: colors.accentDark,
+    borderRadius: radii.sm,
+    padding: spacing.md,
     alignItems: "center",
   },
-  btnText: { color: "#fff", fontWeight: "600" },
+  btnText: { color: colors.text, fontWeight: "600" },
   photoBtn: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "#D8F3DC",
-    borderRadius: 10,
-    padding: 12,
+    borderColor: colors.border,
+    borderRadius: radii.sm,
+    padding: spacing.md,
     justifyContent: "center",
   },
   obsCard: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 12,
+    backgroundColor: colors.card,
+    borderRadius: radii.sm,
+    padding: spacing.md,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "#E8F5E9",
+    borderColor: colors.border,
   },
-  photo: { width: "100%", height: 180, borderRadius: 8, marginBottom: 8 },
-  obsNote: { fontSize: 15, color: "#333" },
-  obsDate: { fontSize: 12, color: "#888", marginTop: 4 },
-  empty: { color: "#888" },
+  photo: { width: "100%", height: 180, borderRadius: radii.sm, marginBottom: spacing.sm },
+  obsNote: { fontSize: 15, color: colors.text },
+  obsDate: { fontSize: 12, color: colors.textSecondary, marginTop: 4 },
+  empty: { color: colors.textSecondary },
   log: {
-    backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
+    backgroundColor: colors.card,
+    padding: spacing.md,
+    borderRadius: radii.sm,
+    marginBottom: spacing.sm,
     borderWidth: 1,
-    borderColor: "#E8F5E9",
+    borderColor: colors.border,
   },
-  logType: { fontWeight: "600" },
-  logDate: { fontSize: 12, color: "#888", marginTop: 2 },
+  logType: { fontWeight: "600", color: colors.text },
+  logDate: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
 });

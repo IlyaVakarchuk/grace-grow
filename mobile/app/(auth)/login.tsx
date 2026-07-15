@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { login, register } from "@/lib/api";
+import { Logo } from "@/components/Logo";
+import { colors, radii, spacing } from "@/lib/theme";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -41,7 +43,7 @@ export default function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <Text style={styles.logo}>🌱 Grace</Text>
+      <Logo />
       <Text style={styles.subtitle}>Мониторинг домашних растений</Text>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -50,6 +52,7 @@ export default function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder="Имя"
+          placeholderTextColor={colors.textMuted}
           value={name}
           onChangeText={setName}
         />
@@ -57,6 +60,7 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor={colors.textMuted}
         autoCapitalize="none"
         keyboardType="email-address"
         value={email}
@@ -65,6 +69,7 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Пароль"
+        placeholderTextColor={colors.textMuted}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -86,33 +91,43 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 24, backgroundColor: "#F8FFF8" },
-  logo: { fontSize: 48, textAlign: "center", marginBottom: 8 },
-  subtitle: { fontSize: 16, textAlign: "center", color: "#555", marginBottom: 32 },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: spacing.xl,
+    backgroundColor: colors.bg,
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: "center",
+    color: colors.textSecondary,
+    marginBottom: 32,
+  },
   error: {
-    backgroundColor: "#FEE2E2",
-    color: "#B91C1C",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
+    backgroundColor: colors.errorBg,
+    color: colors.error,
+    padding: spacing.md,
+    borderRadius: radii.sm,
+    marginBottom: spacing.lg,
     textAlign: "center",
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: "#D8F3DC",
-    borderRadius: 12,
+    borderColor: colors.border,
+    borderRadius: radii.md,
     padding: 14,
-    marginBottom: 12,
+    marginBottom: spacing.md,
     fontSize: 16,
+    color: colors.text,
   },
   btn: {
-    backgroundColor: "#2D6A4F",
-    borderRadius: 12,
+    backgroundColor: colors.accentDark,
+    borderRadius: radii.md,
     padding: 16,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
-  btnText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  link: { textAlign: "center", color: "#2D6A4F", marginTop: 16 },
+  btnText: { color: colors.text, fontSize: 16, fontWeight: "600" },
+  link: { textAlign: "center", color: colors.accent, marginTop: spacing.lg },
 });

@@ -11,6 +11,7 @@ import {
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { createPlant, getLibraryItem, PlantSpecies } from "@/lib/api";
 import { TYPE_LABELS } from "@/lib/labels";
+import { colors, radii, spacing } from "@/lib/theme";
 
 export default function LibraryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -56,33 +57,33 @@ export default function LibraryDetailScreen() {
   if (loading || !item) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#2D6A4F" />
+        <ActivityIndicator color={colors.accent} />
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16 }}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>{item.name}</Text>
       <Text style={styles.badge}>{TYPE_LABELS[item.type]}</Text>
 
       <View style={styles.info}>
         <Text style={styles.label}>☀️ Свет</Text>
-        <Text>{item.light}</Text>
+        <Text style={styles.value}>{item.light}</Text>
         <Text style={styles.label}>💧 Влажность</Text>
-        <Text>{item.humidity}</Text>
+        <Text style={styles.value}>{item.humidity}</Text>
         <Text style={styles.label}>🚿 Полив</Text>
-        <Text>каждые {item.water_days} дн.</Text>
+        <Text style={styles.value}>каждые {item.water_days} дн.</Text>
         {item.fertilize_days ? (
           <>
             <Text style={styles.label}>🌿 Удобрение</Text>
-            <Text>каждые {item.fertilize_days} дн.</Text>
+            <Text style={styles.value}>каждые {item.fertilize_days} дн.</Text>
           </>
         ) : null}
         {item.repot_days ? (
           <>
             <Text style={styles.label}>🪴 Пересадка</Text>
-            <Text>каждые {item.repot_days} дн.</Text>
+            <Text style={styles.value}>каждые {item.repot_days} дн.</Text>
           </>
         ) : null}
       </View>
@@ -96,12 +97,14 @@ export default function LibraryDetailScreen() {
       <TextInput
         style={styles.input}
         placeholder="Название"
+        placeholderTextColor={colors.textMuted}
         value={name}
         onChangeText={setName}
       />
       <TextInput
         style={styles.input}
         placeholder="Локация (подоконник, балкон...)"
+        placeholderTextColor={colors.textMuted}
         value={location}
         onChangeText={setLocation}
       />
@@ -115,29 +118,32 @@ export default function LibraryDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F8FFF8" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  title: { fontSize: 26, fontWeight: "700", color: "#1B4332" },
-  badge: { color: "#2D6A4F", marginTop: 4, marginBottom: 16 },
-  info: { backgroundColor: "#fff", borderRadius: 12, padding: 16, gap: 4 },
-  label: { fontWeight: "600", marginTop: 8, color: "#1B4332" },
-  desc: { marginTop: 16, color: "#555", lineHeight: 22 },
-  section: { fontSize: 18, fontWeight: "600", marginTop: 24, marginBottom: 12 },
-  error: { color: "#B91C1C", marginBottom: 8 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.lg },
+  center: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.bg },
+  title: { fontSize: 26, fontWeight: "700", color: colors.text },
+  badge: { color: colors.accent, marginTop: 4, marginBottom: spacing.lg },
+  info: { backgroundColor: colors.card, borderRadius: radii.lg, padding: spacing.lg, gap: 4 },
+  label: { fontWeight: "600", marginTop: spacing.sm, color: colors.text },
+  value: { color: colors.textSecondary },
+  desc: { marginTop: spacing.lg, color: colors.textSecondary, lineHeight: 22 },
+  section: { fontSize: 18, fontWeight: "600", marginTop: spacing.xl, marginBottom: spacing.md, color: colors.text },
+  error: { color: colors.error, marginBottom: spacing.sm },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: "#D8F3DC",
-    borderRadius: 12,
+    borderColor: colors.border,
+    borderRadius: radii.md,
     padding: 14,
     marginBottom: 10,
+    color: colors.text,
   },
   btn: {
-    backgroundColor: "#2D6A4F",
-    borderRadius: 12,
+    backgroundColor: colors.accentDark,
+    borderRadius: radii.md,
     padding: 16,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
-  btnText: { color: "#fff", fontWeight: "600" },
+  btnText: { color: colors.text, fontWeight: "600" },
 });

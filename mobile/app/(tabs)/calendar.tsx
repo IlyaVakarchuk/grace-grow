@@ -7,9 +7,11 @@ import {
   StyleSheet,
   RefreshControl,
 } from "react-native";
-import { router, useFocusEffect } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import { completeTask, getCalendar, CalendarTask } from "@/lib/api";
 import { TASK_LABELS } from "@/lib/labels";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { colors, radii, spacing } from "@/lib/theme";
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -52,10 +54,12 @@ export default function CalendarScreen() {
 
   return (
     <View style={styles.container}>
+      <ScreenHeader title="Календарь" />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <FlatList
         data={tasks}
         keyExtractor={(t) => t.id}
+        contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -64,6 +68,7 @@ export default function CalendarScreen() {
               await load();
               setRefreshing(false);
             }}
+            tintColor={colors.accent}
           />
         }
         ListEmptyComponent={
@@ -87,31 +92,29 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F8FFF8" },
-  error: { color: "#B91C1C", padding: 12, textAlign: "center" },
-  empty: { textAlign: "center", marginTop: 80, color: "#888" },
+  container: { flex: 1, backgroundColor: colors.bg },
+  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
+  error: { color: colors.error, padding: spacing.md, textAlign: "center" },
+  empty: { textAlign: "center", marginTop: 80, color: colors.textSecondary },
   card: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    marginHorizontal: 16,
-    marginTop: 12,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#D8F3DC",
+    backgroundColor: colors.card,
+    marginBottom: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radii.lg,
     alignItems: "center",
   },
   cardBody: { flex: 1 },
-  task: { fontSize: 16, fontWeight: "600", color: "#1B4332" },
-  plant: { fontSize: 14, color: "#666", marginTop: 2 },
-  date: { fontSize: 13, color: "#2D6A4F", marginTop: 4 },
+  task: { fontSize: 16, fontWeight: "600", color: colors.text },
+  plant: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
+  date: { fontSize: 13, color: colors.accent, marginTop: 4 },
   doneBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#2D6A4F",
+    backgroundColor: colors.accentDark,
     justifyContent: "center",
     alignItems: "center",
   },
-  doneText: { color: "#fff", fontSize: 18, fontWeight: "700" },
+  doneText: { color: colors.text, fontSize: 18, fontWeight: "700" },
 });

@@ -9,7 +9,9 @@ import {
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { getPlants, Plant } from "@/lib/api";
-import { TYPE_LABELS } from "@/lib/labels";
+import { TYPE_LABELS, TYPE_EMOJI } from "@/lib/labels";
+import { ScreenHeader } from "@/components/ScreenHeader";
+import { colors, radii, spacing } from "@/lib/theme";
 
 export default function GardenScreen() {
   const [plants, setPlants] = useState<Plant[]>([]);
@@ -33,10 +35,12 @@ export default function GardenScreen() {
 
   return (
     <View style={styles.container}>
+      <ScreenHeader title="Мой сад" />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <FlatList
         data={plants}
         keyExtractor={(p) => p.id}
+        contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -45,6 +49,7 @@ export default function GardenScreen() {
               await load();
               setRefreshing(false);
             }}
+            tintColor={colors.accent}
           />
         }
         ListEmptyComponent={
@@ -60,14 +65,21 @@ export default function GardenScreen() {
             style={styles.card}
             onPress={() => router.push(`/plant/${item.id}`)}
           >
-            <Text style={styles.cardTitle}>{item.name}</Text>
-            <Text style={styles.cardSub}>
-              {TYPE_LABELS[item.species] ?? item.species} · посажено{" "}
-              {item.planted_at?.slice(0, 10)}
-            </Text>
-            {item.location ? (
-              <Text style={styles.location}>📍 {item.location}</Text>
-            ) : null}
+            <View style={styles.icon}>
+              <Text style={styles.emoji}>
+                {TYPE_EMOJI[item.species] ?? "🌱"}
+              </Text>
+            </View>
+            <View style={styles.body}>
+              <Text style={styles.cardTitle}>{item.name}</Text>
+              <Text style={styles.cardSub}>
+                {TYPE_LABELS[item.species] ?? item.species} · посажено{" "}
+                {item.planted_at?.slice(0, 10)}
+              </Text>
+              {item.location ? (
+                <Text style={styles.location}>📍 {item.location}</Text>
+              ) : null}
+            </View>
           </Pressable>
         )}
       />
@@ -76,21 +88,32 @@ export default function GardenScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F8FFF8" },
-  error: { color: "#B91C1C", padding: 12, textAlign: "center" },
+  container: { flex: 1, backgroundColor: colors.bg },
+  list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
+  error: { color: colors.error, padding: spacing.md, textAlign: "center" },
   emptyBox: { marginTop: 80, alignItems: "center", paddingHorizontal: 24 },
-  empty: { fontSize: 18, color: "#1B4332", fontWeight: "600" },
-  emptyHint: { fontSize: 14, color: "#888", marginTop: 8, textAlign: "center" },
+  empty: { fontSize: 18, color: colors.text, fontWeight: "600" },
+  emptyHint: { fontSize: 14, color: colors.textSecondary, marginTop: 8, textAlign: "center" },
   card: {
-    backgroundColor: "#fff",
-    marginHorizontal: 16,
-    marginTop: 12,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#D8F3DC",
+    flexDirection: "row",
+    backgroundColor: colors.card,
+    marginBottom: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radii.lg,
+    gap: spacing.md,
+    alignItems: "center",
   },
-  cardTitle: { fontSize: 18, fontWeight: "600", color: "#1B4332" },
-  cardSub: { fontSize: 14, color: "#666", marginTop: 4 },
-  location: { fontSize: 13, color: "#2D6A4F", marginTop: 4 },
+  icon: {
+    width: 48,
+    height: 48,
+    borderRadius: radii.md,
+    backgroundColor: colors.cardHover,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emoji: { fontSize: 24 },
+  body: { flex: 1 },
+  cardTitle: { fontSize: 17, fontWeight: "600", color: colors.text },
+  cardSub: { fontSize: 13, color: colors.textSecondary, marginTop: 4 },
+  location: { fontSize: 13, color: colors.accent, marginTop: 4 },
 });

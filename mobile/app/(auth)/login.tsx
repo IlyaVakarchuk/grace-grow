@@ -80,12 +80,14 @@ export default function LoginScreen() {
         >
           <View style={styles.card}>
             <View style={styles.logoBadge}>
-              <Image
-                source={require("../../assets/logo.png")}
-                style={styles.logoImg}
-                resizeMode="contain"
-                accessibilityLabel="GraceGrow"
-              />
+              <View style={styles.logoInner}>
+                <Image
+                  source={require("../../assets/logo.png")}
+                  style={styles.logoImg}
+                  resizeMode="contain"
+                  accessibilityLabel="GraceGrow"
+                />
+              </View>
             </View>
 
             <Image
@@ -253,7 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: AUTH.card,
     borderRadius: 20,
     paddingHorizontal: 22,
-    paddingTop: 36,
+    paddingTop: 42,
     paddingBottom: 24,
     alignItems: "center",
     shadowColor: "#000",
@@ -264,23 +266,34 @@ const styles = StyleSheet.create({
   },
   logoBadge: {
     position: "absolute",
-    top: -28,
+    top: -34,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 4,
+    borderColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#36634D",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  logoInner: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#FFF",
-    borderWidth: 3,
-    borderColor: "#FFF",
-    overflow: "hidden",
+    backgroundColor: AUTH.cream,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
+    overflow: "hidden",
   },
-  logoImg: { width: 44, height: 44 },
+  logoImg: {
+    width: 46,
+    height: 52,
+  },
   hero: { width: 160, height: 160, marginBottom: 8 },
   title: {
     fontSize: 18,

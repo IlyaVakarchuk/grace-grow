@@ -8,9 +8,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
-  ImageBackground,
   ScrollView,
   Alert,
+  useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
 import { login, register } from "@/lib/api";
@@ -37,6 +37,7 @@ const AUTH = {
 
 export default function LoginScreen() {
   const { colors } = useTheme();
+  const { width: vpW, height: vpH } = useWindowDimensions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -64,19 +65,22 @@ export default function LoginScreen() {
   }
 
   return (
-    <ImageBackground
-      source={require("../../assets/login-bg.png")}
-      style={styles.bg}
-      resizeMode="cover"
-    >
+    <View style={[styles.root, { width: vpW, minHeight: vpH }]}>
+      <Image
+        source={require("../../assets/login-bg.png")}
+        style={[styles.bgImage, { width: vpW, height: vpH }]}
+        resizeMode="cover"
+        accessibilityIgnoresInvertColors
+      />
       <KeyboardAvoidingView
-        style={styles.flex}
+        style={styles.overlay}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView
-          contentContainerStyle={styles.scroll}
+          contentContainerStyle={[styles.scroll, { minHeight: vpH }]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
           <View style={styles.card}>
             <View style={styles.logoBadge}>
@@ -238,18 +242,36 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  bg: { flex: 1, backgroundColor: AUTH.cream },
+  root: {
+    flex: 1,
+    backgroundColor: AUTH.cream,
+    overflow: "hidden",
+    ...(Platform.OS === "web"
+      ? ({ minHeight: "100vh", width: "100%" } as object)
+      : null),
+  },
+  bgImage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    zIndex: 0,
+  },
+  overlay: {
+    flex: 1,
+    zIndex: 1,
+    width: "100%",
+  },
   scroll: {
     flexGrow: 1,
     justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingVertical: 48,
   },
   card: {
     backgroundColor: AUTH.card,
@@ -258,6 +280,8 @@ const styles = StyleSheet.create({
     paddingTop: 42,
     paddingBottom: 24,
     alignItems: "center",
+    width: "100%",
+    maxWidth: 400,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
